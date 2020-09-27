@@ -1,0 +1,13 @@
+echo Running mish1.txt
+echo Testing simple commands
+echo test 1 testing cat
+cat input.txt
+echo test 2 testing white space
+echo This  is	a 	 test!
+echo test 3 testing a null command
+
+echo test 4 testing a non-zero return code command
+rm asdfasdf
+echo test 5 testing explicit exit command
+exit
+echo exit test failed

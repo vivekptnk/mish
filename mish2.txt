@@ -1,0 +1,17 @@
+echo Running mish2.txt
+echo Test1 start logging
+log mishlog.txt
+echo logging started
+echo Test1 complete
+echo Test2 switch log file
+log mishlog2.txt
+cat mishlog.txt
+echo Test2 complete
+echo Test3 check if errors are logged
+rm asdfadsf
+echo Test3 complete
+echo Test3 turn off logging and erase logs
+log
+cat mishlog2.txt
+rm mishlog.txt mishlog2.txt
+echo Test3 complete

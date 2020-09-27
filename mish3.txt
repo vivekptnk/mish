@@ -1,0 +1,20 @@
+echo Running mish3.txt
+echo Test 1 try pwd
+pwd
+ls
+echo Test 1 complete
+echo Test 2 try cd
+cd ..
+pwd
+ls
+echo Test 2 complete
+echo Test 3 extra credit cd feature 1
+pwd
+cd
+pwd
+echo Test 3 complete
+echo Test 4 extra credit cd feature 2
+pwd
+cd -
+pwd
+echo Test 4 complete
