@@ -1,21 +1,53 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <string.h>
+#include <stdlib.h>
 
+#define WHITESPACES "\t\v\f\n\r"
 
-
-void command_loop()
-{	
-	int exit_counter = 1;
+char *  read_line(){
+	char * line = NULL;
+	size_t buffer = 0;
 	
-	do{
-	printf("MISH >\n");
+	if (getline(&line, &buffer, stdin) == -1){
+		if (feof(stdin)){
+			exit(EXIT_SUCCESS);
+		} else {
+			perror("readline");
+			exit(EXIT_FAILURE);
+		}
+	}
 	
-	}while(exit_counter = 1);
+	return line;
+}
+
+char ** tokenize(char * line){
+	int buffer = 64, pos = 0;
+	char ** tokens = malloc(buffer * sizeof(char*));
+	char *token;
+
+	token = strtok(line, WHITESPACES);
+	while (token != NULL){
+		tokens[pos] = token;
+		pos++;
+		if (pos >= buffer){
+			buffer += 64;
+			tokens = realloc(tokens, buffer * sizeof(char*));
+		}
+
+		token = strtok(NULL, WHITESPACES);
+	}
+	tokens[pos] = NULL;
+	return tokens;
 }
 
 
+
+
+
 int  cd(){
+	
 	return 0;
 }
 
@@ -38,7 +70,24 @@ int  fork_exec(){
 	return 0;
 }
 
-int  main(){char pwd[1024];
+void command_loop()
+{       
+        char * line;
+        char ** args;
+        int exit_counter = 1;
+
+        do{
+        printf("MISH>");
+        line = read_line();
+        args = tokenize(line);
+        exit_counter = exit_cmd(args);
+        free(line);
+        free(args);
+        }while(exit_counter = 1);
+}
+
+
+int  main(){
 
         printf("Starting Up !\n");
         command_loop();
