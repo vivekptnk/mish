@@ -1,96 +1,127 @@
+
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <sys/wait.h>
-#include <string.h>
-#include <stdlib.h>
 
-#define WHITESPACES "\t\v\f\n\r"
+#define DELIM "\t\v\f\n\r"
 
-char *  read_line(){
-	char * line = NULL;
-	size_t buffer = 0;
-	
-	if (getline(&line, &buffer, stdin) == -1){
-		if (feof(stdin)){
-			exit(EXIT_SUCCESS);
+char newString[1024][1024];
+
+int exit_flag = 1;
+
+int readline();
+
+
+int fork_exec();
+int exit_cmd();
+
+void command_loop();
+
+int readline(){
+	char *line;
+	size_t bufsize = 1024;
+	size_t commands;
+
+
+	line  = (char *)malloc(bufsize * sizeof(char));
+	if (line == NULL){
+		perror("Unable to allocate buffer");
+		exit(1);
+	}
+
+	commands = getline(&line, &bufsize, stdin);
+
+
+	int j=0, ctr=0;
+
+	for(int i=0; i<=(strlen(line));i++)
+	{
+		if(line[i]==' '|| line[i]=='\0' || line[i]=='\t' || line[i]=='\v' || line[i]=='\f' || line[i]=='\n' || line[i]=='\r'){
+			newString[ctr][i] = '\0';
+			ctr++;
+			j=0;
 		} else {
-			perror("readline");
-			exit(EXIT_FAILURE);
+			newString[ctr][j] = line[i];
 		}
 	}
-	
-	return line;
+	return 0;
 }
 
-char ** tokenize(char * line){
-	int buffer = 64, pos = 0;
-	char ** tokens = malloc(buffer * sizeof(char*));
-	char *token;
 
-	token = strtok(line, WHITESPACES);
-	while (token != NULL){
-		tokens[pos] = token;
-		pos++;
-		if (pos >= buffer){
-			buffer += 64;
-			tokens = realloc(tokens, buffer * sizeof(char*));
+int exit_cmd(){
+	exit_flag = 0;
+}
+
+int fork_exec(){
+        pid_t pid;
+        int status;
+
+        pid = fork();
+
+        if (pid  < 0 ) {
+                perror("FORK ERROR");
+                exit(1);
+        } else if (pid == 0){
+                if (execvp(newString[0], char *const __argv[]) <0 )  printf("COMMAND NOT FOUND : %s\n", newString[0]), exit(2);
+        } else {
+                do{
+                        waitpid(pid, &status, WUNTRACED);
+                } while (!WIFEXITED(status) && !WIFSIGNALED(status));
+        }
+        return 1;
+}
+
+int parse_array(){
+	int i=0;
+	int j=0;
+	int length1 = strlen(char *newString);
+
+	for(i ; i<length1; i++){
+		if (newString[i] == "cd"){
+			if (chdir(newString[i+1])!=0){
+		                perror("cd failed");
+       			 } else {
+               			 chdir(newString[i+1]);
+       			 }
+			return exit_cmd();
+
+		} else if (newString[i] == "pwd") {
+			char pwd[1024];
+			getcwd(pwd, sizeof(pwd));
+			printf("%s\n",pwd);
+			return exit_cmd();
+
+		} else if (newString[i] == "log") {
+			FILE *fp;
+			fp = fopen(newString[i+1],"w+");
+			do{
+				fputs(newString[i],fp);
+				i++;
+			}while(newString[i+1]!="log");
+			fclose(fp);
+			return exit_cmd();
+		} else if (newString[i] == "exit"){
+			return exit_cmd();
+		} else {
+			fork_exec(newString);
 		}
-
-		token = strtok(NULL, WHITESPACES);
 	}
-	tokens[pos] = NULL;
-	return tokens;
 }
 
-
-
-
-
-int  cd(){
-	
-	return 0;
-}
-
-int pwd(){
-	char pwd[1024];
-        getcwd(pwd, sizeof(pwd));
-        printf("current director:\n%s\n",pwd);
-	return 0;
-}
-
-int  exit_cmd(){
-	return 0;
-}
-
-int  log_file(){
-	return 0;
-}
-
-int  fork_exec(){
-	return 0;
-}
 
 void command_loop()
-{       
-        char * line;
-        char ** args;
-        int exit_counter = 1;
+{
 
         do{
         printf("MISH>");
-        line = read_line();
-        args = tokenize(line);
-        exit_counter = exit_cmd(args);
-        free(line);
-        free(args);
-        }while(exit_counter = 1);
+        readline();
+	parse_array();
+        }while(exit_flag = 1);
 }
 
-
-int  main(){
-
-        printf("Starting Up !\n");
-        command_loop();
-
-        return 0;
+int main(){
+	command_loop();
+	return 0;
 }
