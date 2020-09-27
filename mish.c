@@ -20,6 +20,9 @@ int  cd(){
 }
 
 int pwd(){
+	char pwd[1024];
+        getcwd(pwd, sizeof(pwd));
+        printf("current director:\n%s\n",pwd);
 	return 0;
 }
 
@@ -35,8 +38,10 @@ int  fork_exec(){
 	return 0;
 }
 
-int  main(){
+int  main(){char pwd[1024];
+
         printf("Starting Up !\n");
         command_loop();
+
         return 0;
 }
